@@ -12,4 +12,43 @@ The `jenkins` directory contains an example of the `Jenkinsfile` (i.e. Pipeline)
 you'll be creating yourself during the tutorial and the `scripts` subdirectory
 contains shell scripts with commands that are executed when Jenkins processes
 the "Test" and "Deliver" stages of your Pipeline.
+```
 
+pipeline {
+    agent {
+       docker {
+           image 'node:8.14.0-alpine'
+           args '-p 3000:3000'
+       }
+   }
+    environment {
+        CI = 'true'
+    }
+    stages {
+        stage('Start') {
+            steps {
+                sh 'BUILD_ID=DONTKILLME'
+            }
+        }
+        stage('Build') {
+            steps {
+                sh 'npm config setregistry=http://registry.npm.taobao.org && npm install'
+            }
+        }
+        stage('Test') {
+            steps {
+                sh './jenkins/scripts/test.sh'
+            }
+        }
+        stage('Deliver') {
+            steps {
+                sh './jenkins/scripts/deliver.sh'
+                input message: 'Finished using the web site? (Click "Proceed" to continue)'
+                sh './jenkins/scripts/kill.sh'
+            }
+        }
+    }
+}
+
+
+```
