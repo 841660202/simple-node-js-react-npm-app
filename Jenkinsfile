@@ -1,14 +1,19 @@
 pipeline {
     agent {
-        docker {
-            image 'node:6-alpine'
-            args '-p 3000:3000'
-        }
-    }
+       docker {
+           image 'node:8.14.0-alpine'
+           args '-p 3000:3000'
+       }
+   }
     environment {
         CI = 'true'
     }
     stages {
+        stage('Start') {
+            steps {
+                sh 'BUILD_ID=DONTKILLME'
+            }
+        }
         stage('Build') {
             steps {
                 sh 'npm install'
